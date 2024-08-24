@@ -1,6 +1,5 @@
 package org.mc_dev_community.mcdevcommunity.servermessage
 
-import com.intellij.icons.AllIcons
 import com.intellij.notification.impl.ui.NotificationsUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.JBColor
@@ -9,16 +8,12 @@ import com.intellij.ui.components.panels.VerticalLayout
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
 import java.awt.Component
-import java.awt.Cursor
-import java.awt.event.MouseAdapter
-import java.awt.event.MouseEvent
 import javax.accessibility.AccessibleContext
 import javax.swing.JEditorPane
-import javax.swing.JLabel
 import javax.swing.JPanel
 
 
-class MessageComponent(val originMessage: String, me: Boolean):
+class MessageComponent(private val originMessage: String, me: Boolean):
     JBPanel<MessageComponent>() {
     init {
         isDoubleBuffered = true
@@ -50,14 +45,6 @@ class MessageComponent(val originMessage: String, me: Boolean):
         val actionPanel = JPanel(BorderLayout())
         actionPanel.isOpaque = false
         actionPanel.border = JBUI.Borders.emptyRight(10)
-        val copyAction = JLabel(AllIcons.Actions.Copy)
-        copyAction.cursor = Cursor(Cursor.HAND_CURSOR)
-        copyAction.addMouseListener(object : MouseAdapter() {
-            override fun mouseClicked(e: MouseEvent?) {
-
-            }
-        })
-        actionPanel.add(copyAction, BorderLayout.NORTH)
         add(actionPanel, BorderLayout.EAST)
     }
 

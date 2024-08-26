@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import java.io.IOException
 
-
 class SendListener(val chatMainPanel: ChatMainPanel): ActionListener, KeyListener {
     override fun actionPerformed(e: ActionEvent?) {
         try {

@@ -8,8 +8,7 @@ import com.intellij.openapi.project.Project
 import org.apache.commons.lang3.StringUtils
 import org.mc_dev_community.mcdevcommunity.panes.ChatMainPanel
 import org.mc_dev_community.mcdevcommunity.servermessage.MessageComponent
-import org.mc_dev_community.mcdevcommunity.servermessage.MessageGroupComponent
-import org.mc_dev_community.mcdevcommunity.util.ACTIVE_CONTENT
+import org.mc_dev_community.mcdevcommunity.util.CHAT_ACTIVE_CONTENT
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -23,7 +22,7 @@ class SendAction: AnAction() {
 
     override fun actionPerformed(event: AnActionEvent) {
         val project = event.project
-        val mainPanel = project?.getUserData(ACTIVE_CONTENT)
+        val mainPanel = project?.getUserData(CHAT_ACTIVE_CONTENT)
         doActionPerformed(mainPanel as ChatMainPanel, data)
     }
 

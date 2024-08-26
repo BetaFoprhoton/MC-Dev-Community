@@ -10,11 +10,11 @@ import java.awt.BorderLayout
 import java.awt.Component
 import javax.accessibility.AccessibleContext
 import javax.swing.JEditorPane
+import javax.swing.JLabel
 import javax.swing.JPanel
 
 
-class MessageComponent(private val originMessage: String, me: Boolean):
-    JBPanel<MessageComponent>() {
+class MessageComponent(private val originMessage: String, me: Boolean): JBPanel<MessageComponent>() {
     init {
         isDoubleBuffered = true
         isOpaque = true
@@ -22,9 +22,10 @@ class MessageComponent(private val originMessage: String, me: Boolean):
         border = JBUI.Borders.empty(10, 10, 10, 0)
         layout = BorderLayout(JBUI.scale(7), 0)
 
+        /*
         val iconPanel = JPanel(BorderLayout())
         iconPanel.isOpaque = false
-        /*
+
         var imageIcon: Image
         try {
             val url: String = OpenAISettingsState.getInstance().imageUrl

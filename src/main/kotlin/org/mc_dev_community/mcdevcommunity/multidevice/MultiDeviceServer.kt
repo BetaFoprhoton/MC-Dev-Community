@@ -8,51 +8,49 @@ import java.nio.charset.StandardCharsets
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
 
-class MultiDeviceServer private constructor(private var ipAddress: String, private var port: Int): Thread() {
+class MultiDeviceServer private constructor(private var ipAddress: String, private var port: Int) {
     companion object {
         private var instance: MultiDeviceServer? = null
 
         var isRunning = AtomicBoolean(false)
-        val messageQueue = LinkedTransferQueue<String>()
+        val inputMessageQueue = LinkedTransferQueue<String>()
+        val outputMessageQueue = LinkedTransferQueue<String>()
         @Synchronized
         fun runServer(ipAddress: String, port: Int)  {
-            if (instance == null)
+            if (instance == null) {
                 instance = MultiDeviceServer(ipAddress, port)
+                instance!!.serverThread.start()
+            }
             if (ipAddress != instance!!.ipAddress || port != instance!!.port)
                 instance!!.onChange(ipAddress, port)
             if (!isRunning.get()) {
-                instance!!.start()
                 isRunning.set(true)
+                Notifications.Bus.notify(Notification(
+                    GROUP_ID,
+                    MDCLocaleUtil.message("MC-Dev-Community.Config.MultiDevice"),
+                    MDCLocaleUtil.message("MC-Dev-Community.Notification.ServerStart","$ipAddress:$port"),
+                    NotificationType.INFORMATION), null
+                )
             }
         }
 
         @Synchronized
         fun stopServer() {
             if (instance != null && isRunning.get())  {
-                isRunning.set(false)
                 Notifications.Bus.notify(Notification(
                     GROUP_ID,
                     MDCLocaleUtil.message("MC-Dev-Community.Config.MultiDevice"),
                     MDCLocaleUtil.message("MC-Dev-Community.Notification.ServerStop"),
                     NotificationType.INFORMATION), null
                 )
+                instance!!.stopServer()
             }
         }
     }
 
     @set:Synchronized
     private var serverSocket = ServerSocket(port, 10, InetAddress.getByName(ipAddress))
-    init {
-        Notifications.Bus.notify(Notification(
-            GROUP_ID,
-            MDCLocaleUtil.message("MC-Dev-Community.Config.MultiDevice"),
-            MDCLocaleUtil.message("MC-Dev-Community.Notification.ServerStart","$ipAddress:$port"),
-            NotificationType.INFORMATION), null
-        )
-        isRunning.set(true)
-    }
-
-    override fun run() {
+    private val serverThread = Thread {
         try {
             while (true)  {
                 if (!isRunning.get()) continue
@@ -85,7 +83,7 @@ class MultiDeviceServer private constructor(private var ipAddress: String, priva
                     if (message == "exit") {
                         break
                     }
-                    messageQueue.add(message)
+                    inputMessageQueue.add(message)
                 }
             }
         } catch (e: Exception) {
@@ -93,23 +91,19 @@ class MultiDeviceServer private constructor(private var ipAddress: String, priva
         }
     }
 
-    override fun start() {
-        if (!isRunning.get())
-            super.start()
-    }
-
     @Synchronized
-    fun stopServer() {
-        serverSocket.close()
+    private fun stopServer() {
+        try {
+            serverSocket.close()
+        } catch (_: SocketException) { }
         isRunning.set(false)
-        instance?.interrupt()
     }
 
     @Synchronized
     private fun onChange(ipAddress: String, port: Int) {
+        isRunning.set(false)
         this.ipAddress = ipAddress
         this.port = port
-        stopServer()
         serverSocket = ServerSocket(port, 10, InetAddress.getByName(ipAddress))
         Notifications.Bus.notify(Notification(
             GROUP_ID,
@@ -117,5 +111,6 @@ class MultiDeviceServer private constructor(private var ipAddress: String, priva
             MDCLocaleUtil.message("MC-Dev-Community.Notification.ServerIpChange", "$ipAddress:$port"),
             NotificationType.INFORMATION), null
         )
+        isRunning.set(true)
     }
 }
